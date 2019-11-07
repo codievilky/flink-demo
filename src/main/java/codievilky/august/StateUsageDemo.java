@@ -24,7 +24,7 @@ import java.io.IOException;
 public class StateUsageDemo {
   public static void main(String[] args) throws Exception {
     final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-    StateBackend stateBackend = new RocksDBStateBackend("hdfs://cloud:8020/sa/august/stateBackend/");
+    StateBackend stateBackend = new RocksDBStateBackend("file:///data/sa_cluster/runtime/stateBackend/", true);
     env.setStateBackend(stateBackend);
     DataStreamSource<String> text = env.socketTextStream("10.19.91.39", 10000, "\n");
 
