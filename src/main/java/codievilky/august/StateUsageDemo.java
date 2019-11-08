@@ -1,6 +1,8 @@
 package codievilky.august;
 
+import codievilky.august.pojo.InnerPojo;
 import codievilky.august.pojo.NewPojo;
+import codievilky.august.pojo.SumPojo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
@@ -15,6 +17,8 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @auther Codievilky August
@@ -46,6 +50,7 @@ public class StateUsageDemo {
 
   static class StateSaveFunction extends RichFlatMapFunction<Tuple2<String, Integer>, String> {
     private ValueState<NewPojo> state;
+    private int times = 0;
 
     @Override
     public void open(Configuration parameters) throws Exception {
@@ -54,10 +59,26 @@ public class StateUsageDemo {
 
     @Override
     public void flatMap(Tuple2<String, Integer> value, Collector<String> out) throws Exception {
-      // 1,10
+      // 1,abc
       NewPojo newPojo = getMyPojo();
       newPojo.setA(newPojo.getA() + value.f1);
       newPojo.setB(value.f0);
+      newPojo.setC(newPojo.getC() + value.f1);
+      Map<Integer, InnerPojo> innerPojoMap = newPojo.getInnerPojoMap();
+      if (innerPojoMap == null) {
+        innerPojoMap = new HashMap<>();
+        newPojo.setInnerPojoMap(innerPojoMap);
+      }
+      InnerPojo innerPojo = new InnerPojo();
+      innerPojo.setC(value.f1);
+      innerPojo.setA(value.f0);
+      innerPojoMap.put(times++, innerPojo);
+      SumPojo sumPojo = newPojo.getSumPojo();
+      if (sumPojo == null) {
+        sumPojo = new SumPojo();
+        newPojo.setSumPojo(sumPojo);
+      }
+      sumPojo.setSum(sumPojo.getSum() + value.f1);
       state.update(newPojo);
       log.info("state update to {}", state.value());
     }
