@@ -39,6 +39,7 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-statebackend-rocksdb_2.11</artifactId>
             <version>${sf.flink.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
